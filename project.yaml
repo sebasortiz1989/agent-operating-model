@@ -1,0 +1,24 @@
+# Fill these before the first role session.
+project:
+  name: "<PROJECT_NAME>"
+  hub_repo: "<github.com/you/YourHub>"
+  one_line: "<what this product is, in one sentence>"
+
+# Product repositories this hub coordinates.
+repos:
+  - name: "<Product-Web>"
+    platform: web
+  - name: "<Product-Api>"
+    platform: api
+
+# Row prefixes used on the board. One per product repo.
+board_prefixes:
+  - web
+  - api
+
+conventions:
+  default_branch: main
+  agent_branch_pattern: "agent/<role>"
+  # Weekly build hours available. The board uses this to convert
+  # remaining hours into a calendar estimate.
+  build_hours_per_week: 10
