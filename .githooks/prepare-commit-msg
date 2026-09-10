@@ -1,0 +1,142 @@
+#!/bin/sh
+#
+# prepare-commit-msg
+#
+# The commit subject is the review surface: a human commits work
+# they did not write, so the subject is the only thing standing
+# between a change and nobody knowing it happened. Three commits have shipped
+# with subjects naming nothing or naming the wrong row, and after the third the
+# rule was restated a third time. It was already being followed upstream — both
+# sessions supplied a suggested subject in their `00_Updates/` entry — and it
+# broke in the gap between that entry and the commit dialog, where nobody was
+# reading.
+#
+# So this is not the rule again. It carries the subject across that gap.
+#
+#   1. A session finishing desktop work writes its suggested subject to
+#      `.commit-subject` in the repo root (gitignored, never committed).
+#   2. This hook seeds the commit message from that file.
+#   3. `.githooks/post-commit` removes the file once a commit lands.
+#
+# IT MUST NEVER BLOCK A COMMIT, AND IT MUST NEVER OVERWRITE TYPED TEXT.
+# A missing file, an unreadable one, a merge, a squash, an amend, or a message
+# the committer already wrote is a no-op. Every path ends `exit 0`; there is no
+# `set -e` on purpose, because a hook that fails a commit to fix a subject line
+# has made the problem worse than the one it was written for.
+#
+# It also answers the second rule — ONE ROW PER COMMIT — by saying what is
+# actually in the commit. `git add <paths>` scopes the add, not the commit, so
+# a commit picks up everything already staged, including a concurrent session's
+# work (hub `10de059`, 2026-08-29). Where the message is composed in an editor
+# the file list is added as comment lines, which git strips. Where it arrives
+# with `-m` — which is how an agent commits — it goes to stderr instead, so it
+# is never written into the message but is still read by whoever ran the
+# command.
+#
+# Install: `git config core.hooksPath .githooks` (once per clone).
+
+MSG_FILE="${1:-}"
+SOURCE="${2:-}"
+
+[ -n "$MSG_FILE" ] || exit 0
+[ -f "$MSG_FILE" ] || exit 0
+
+# A merge, a squash, or a message being reused (`--amend`, `-c`, `-C`,
+# cherry-pick) already has a message that is not this hook's to touch.
+case "$SOURCE" in
+    merge|squash|commit) exit 0 ;;
+esac
+
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -n "$ROOT" ] || exit 0
+
+SUBJECT_FILE="$ROOT/.commit-subject"
+
+COMMENT_CHAR=$(git config --get core.commentChar 2>/dev/null)
+case "$COMMENT_CHAR" in
+    ?) : ;;          # a single character, whatever it is
+    *) COMMENT_CHAR='#' ;;   # unset, "auto", or something multi-character
+esac
+
+# --- what the committer has already written -------------------------------
+#
+# Comment lines do not count, and neither does anything below the scissors
+# line `git commit -v` writes — that region is the diff, and treating it as a
+# message would make every verbose commit look non-empty.
+existing=$(
+    awk -v c="$COMMENT_CHAR" '
+        substr($0, 1, 1) == c && index($0, ">8") { exit }
+        substr($0, 1, 1) != c
+    ' "$MSG_FILE" 2>/dev/null | tr -d '[:space:]'
+)
+
+# --- the suggested subject, if a session left one --------------------------
+SEED=""
+if [ -r "$SUBJECT_FILE" ]; then
+    # Trailing blank lines trimmed; everything else is passed through, so a
+    # session may supply a subject alone or a subject, a blank line and a body.
+    SEED=$(sed -e :a -e '/^[[:space:]]*$/{$d;N;ba' -e '}' "$SUBJECT_FILE" 2>/dev/null)
+fi
+
+# --- what is actually staged ----------------------------------------------
+STAGED=$(git diff --cached --name-only 2>/dev/null)
+STAGED_COUNT=0
+[ -n "$STAGED" ] && STAGED_COUNT=$(printf '%s\n' "$STAGED" | wc -l | tr -d ' ')
+
+# Nothing to say and nothing to seed.
+if [ -z "$SEED" ] && [ "$STAGED_COUNT" -eq 0 ]; then
+    exit 0
+fi
+
+# --- the one write, so the subject stays on line 1 -------------------------
+#
+# The seed goes first because that is the line being reviewed; the file list
+# sits under it as comments, where git strips it.
+NEW_HEAD=""
+
+if [ -n "$SEED" ] && [ -z "$existing" ]; then
+    NEW_HEAD="$SEED
+"
+fi
+
+if [ "$STAGED_COUNT" -gt 0 ]; then
+    LISTED=$(printf '%s\n' "$STAGED" | head -n 12)
+    REMAINDER=$((STAGED_COUNT - 12))
+
+    if [ -z "$SOURCE" ] || [ "$SOURCE" = "template" ]; then
+        # Composed in an editor: git strips comment lines, so this is free.
+        BLOCK=$(
+            printf '%s ONE ROW PER COMMIT. This commit contains %s file(s):\n' \
+                "$COMMENT_CHAR" "$STAGED_COUNT"
+            printf '%s\n' "$LISTED" | sed "s|^|$COMMENT_CHAR   |"
+            [ "$REMAINDER" -gt 0 ] && printf '%s   … and %s more\n' "$COMMENT_CHAR" "$REMAINDER"
+            printf '%s `git add <paths>` scopes the add, not the commit. If that list\n' "$COMMENT_CHAR"
+            printf '%s holds more than one row of work, abort and use `git commit --only`.\n' "$COMMENT_CHAR"
+        )
+        NEW_HEAD="$NEW_HEAD
+$BLOCK
+"
+    else
+        # Arrived with -m, which is how an agent commits. Comment lines are NOT
+        # stripped under that cleanup mode, so this must never touch the
+        # message file. stderr is read by whoever ran the command.
+        {
+            printf 'hub: ONE ROW PER COMMIT — this commit contains %s file(s):\n' "$STAGED_COUNT"
+            printf '%s\n' "$LISTED" | sed 's|^|hub:   |'
+            [ "$REMAINDER" -gt 0 ] && printf 'hub:   … and %s more\n' "$REMAINDER"
+            printf 'hub: `git add <paths>` scopes the add, not the commit. If that list\n'
+            printf 'hub: holds more than one row of work, abort and use `git commit --only`.\n'
+        } >&2
+    fi
+fi
+
+if [ -n "$NEW_HEAD" ]; then
+    TMP="$MSG_FILE.hub.$$"
+    {
+        printf '%s\n' "$NEW_HEAD"
+        cat "$MSG_FILE"
+    } > "$TMP" 2>/dev/null && mv "$TMP" "$MSG_FILE" 2>/dev/null
+    rm -f "$TMP" 2>/dev/null
+fi
+
+exit 0

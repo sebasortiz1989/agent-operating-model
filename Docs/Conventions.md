@@ -48,10 +48,16 @@ fix it in a follow-up commit that says what happened.
 One file per session in `Updates/`:
 
 ```
-Updates/YYYY-MM-DD_NN_<role>_short-topic.md
+Updates/YYYY-MM-DD_HHMM_<role>_short-topic.md
 ```
 
-`NN` is a per-day sequence. Record what was decided, what was built, what it
+**`HHMM` is the clock time you create the file** (`date +%Y-%m-%d_%H%M`), not a
+sequence number. A counter requires knowing what else was written today, and
+**parallel sessions cannot see each other** — two sessions on one day both reach
+for `_02_`, and one silently overwrites the other or claims the same position in
+an append-only record. The clock cannot collide that way and sorts identically.
+
+Record what was decided, what was built, what it
 cost, what is still owed, and the proposed State paste. Write it so a future
 session with no memory can pick the thread up — that is its only purpose.
 
@@ -68,6 +74,30 @@ Do the row that is open.
 If you find a defect outside it, **file it as a new row and name it.** Do not
 absorb it into the current change, and do not leave it unmentioned. An unstated
 gap is the problem; a stated one is a decision someone made.
+
+## Size budgets
+
+**A file every session reads is a cost paid once per role per session, not once
+per day.** `State.md`, the board and the prompt queue all grow the same way:
+every session appends its full reasoning to a file every later session must read.
+Correct locally, ruinous in aggregate, and invisible without measuring.
+
+`scripts/size-budget.py` names the ceiling for each. **The rule, not the number:
+a per-session file carries the CLAIM; the reasoning lives in the file that
+produced it.** A breach is a record written into the wrong file — move it to
+`Updates/`, an ADR or a dated archive. Do not delete it, and **do not raise the
+budget to make the check quiet.**
+
+Edit the budget list before you edit anything else if your layout differs. A
+budget pointing at a file that does not exist is a check that always passes,
+which reads exactly like a check that works.
+
+## The prompt queue
+
+`Plans/BOARD.md` says what is being built. `Plans/PROMPT_QUEUE.md` says what
+happens next and in what order, with one ready-to-paste body per prompt in
+`Plans/queue/`. Full rules, including how it is rendered in chat and why the
+column limit is load-bearing: `Docs/Queue.md`.
 
 ## Review gates
 

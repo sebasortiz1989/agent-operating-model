@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# post-commit
+#
+# Removes `.commit-subject` once a commit has landed. It describes the work
+# sitting in the tree right now; after a commit it is either spent or stale,
+# and a stale subject pre-filling the *next* commit is worse than none. An
+# `--amend` clears it too — the work it named is in history either way.
+#
+# DELIBERATELY HERE AND NOT IN prepare-commit-msg. That hook runs before the
+# commit exists, so deleting there loses the subject whenever the commit is
+# abandoned — an editor quit, an empty message, a change of mind. Consuming it
+# on the commit rather than on the attempt is the difference between a file
+# that survives a false start and one that does not. Verified both ways.
+#
+# Do not point `commit.template` at this file — see `Docs/Conventions.md` for the
+# two measured reasons. This hook assumes nothing else depends on the file
+# existing.
+#
+# Never blocks: the commit has already happened by the time this runs.
+
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -n "$ROOT" ] && rm -f "$ROOT/.commit-subject" 2>/dev/null
+
+exit 0

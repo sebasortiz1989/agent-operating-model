@@ -86,6 +86,41 @@ Agents have no memory between sessions. The repository is the memory.
 
 A rule that only exists in chat history does not exist.
 
+### 5. A queue, so "what next" is a file and not a memory
+
+The board says what is being built. **The queue says what happens next, in what
+order, and each entry is ready to paste.** An index in run order, one body per
+prompt, five at a time — past five it is a plan, and that is the board's job.
+
+Two things in it earn their keep beyond the obvious. **Gates** are items only the
+human can clear — a decision, a merge, a device check — held separately so they
+do not sit in the problem list reading as failures. And **flags carry a pass
+count**: a flag entering its fourth pass leaves the block and becomes a row or a
+standing rule, because a flag carried forever is a flag nobody reads.
+
+The queue is shown in chat as a fenced monospace block with a **hard 78-column
+limit**. That is not formatting fussiness. A row ran to 98 characters, a reader's
+viewport soft-wrapped it, and the overflow landed at column 0 — **which in a
+monospace table reads as a value in the first column.** A wrapped line in that
+block does not look wrapped; it looks like data.
+
+See [`Docs/Queue.md`](Docs/Queue.md).
+
+### 6. Working rules, and checks that only ever report
+
+**[`Docs/Working_Rules.md`](Docs/Working_Rules.md)** is under 3 KB and binds every
+role: say what you assumed, build the minimum, keep every changed line traceable
+to the request, define done before starting. It is adapted from
+`multica-ai/andrej-karpathy-skills` (MIT), with one clause deliberately rejected —
+where the source says *mention* unrelated dead code, this model says **file it**,
+because a mention in chat is not a record.
+
+Four scripts back the conventions that are mechanical enough to check:
+`queue-lint.sh`, `state-drift.sh`, `size-budget.py`, and `setup-hooks.sh` with
+`.githooks/`. **They report and exit. None of them edits a file, and none decides
+anything.** The one about size exists because a `State.md` reached 23,591 tokens
+while every session paid to read it, and nobody noticed without measuring.
+
 ---
 
 ## What is in here
@@ -94,13 +129,19 @@ A rule that only exists in chat history does not exist.
 CLAUDE.md                   the rules an agent reads on entering the repo
 project.yaml                identity placeholders — fill these first
 .claude/skills/             four role skills: manager, architect, planner, developer
-Docs/Conventions.md         git workflow, state discipline, end-of-day checkpoint
+Docs/Conventions.md         git workflow, state discipline, size budgets, checkpoint
+Docs/Working_Rules.md       how a session behaves before it writes anything
+Docs/Queue.md               the prompt queue, and how it is rendered in chat
 Docs/Board.md               how work is tracked, row naming, sizing
 Docs/Probes.md              the probe convention in full
 Docs/ADRs.md                when an ADR is warranted, and the template
 State.md                    template
 Updates/                    format and an example
 Plans/BOARD.md              board template
+Plans/PROMPT_QUEUE.md       queue index template, fence included
+Plans/queue/                one file per prompt; README carries the body shape
+scripts/                    four detection-only checks; none of them edits
+.githooks/                  commit-subject carry, multi-row commit warning
 examples/probes/            a worked example of the probe format
 ```
 
@@ -116,10 +157,17 @@ examples/probes/            a worked example of the probe format
 mutation testing in review and the measured/reasoned distinction. Those two
 carry most of the value; the role structure is scaffolding around them.
 
+**After the gates, take the working rules and the size budgets** — both are
+cheap, neither needs the role structure, and they are what keep a hub readable
+long enough for the rest to matter.
+
 ## What this is not
 
 - Not a framework, a dependency or a tool. It is markdown and conventions.
-- Not automation. Nothing here runs; a human still decides.
+- Not automation. The four scripts in `scripts/` **report and exit** — they
+  never edit a file and never decide anything. A human still decides, and the
+  moment a check starts fixing what it found, it stops being trustworthy as a
+  check.
 - Not tied to Claude Code specifically, though that is what it was built on.
   The skills are markdown files; the mechanisms are not vendor-specific.
 

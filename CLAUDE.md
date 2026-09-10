@@ -10,8 +10,13 @@ and standards live here.
 2. Follow the git rules in `Docs/Conventions.md` — sync the default branch,
    agent commits go on `agent/<role>`, then PR.
 3. Read `State.md`.
+3b. **`Docs/Working_Rules.md`** — how a session behaves before it writes: state
+   assumptions, build the minimum, keep changes surgical, define done first.
+   **Under 3 KB, and it binds every role.**
 4. Skim the newest filenames in `Updates/`.
-5. Open only the role folders you need. Do not read the whole hub.
+5. Check `Plans/PROMPT_QUEUE.md` — **it is in run order**, so the top live prompt
+   is what happens next. Rules: `Docs/Queue.md`.
+6. Open only the role folders you need. Do not read the whole hub.
 
 ## Roles
 
@@ -30,7 +35,9 @@ Add or delete roles to fit the project. Four is an example, not a floor.
 ## After meaningful work
 
 - Save the artifact in the owning role's folder.
-- Create **one** `Updates/YYYY-MM-DD_NN_<role>_short-topic.md`.
+- Create **one** `Updates/YYYY-MM-DD_HHMM_<role>_short-topic.md`. `HHMM` is the
+  clock time you create it (`date +%Y-%m-%d_%H%M`), **not a sequence number** —
+  parallel sessions cannot see each other, so a counter collides.
 - Propose State edits; **only the manager role edits `State.md`, and only after
   an explicit human yes.**
 - Commit on `agent/<role>`, open a PR. Never commit to the default branch.
@@ -46,6 +53,24 @@ broken code is not evidence.
 observed, say so. A reasoned answer written as a fact will be quoted back as one
 weeks later, by which point nobody remembers it was a guess. When the answer
 matters, write a probe — see `Docs/Probes.md`.
+
+## The checks this hub ships with
+
+Four scripts, all **detection only** — none of them edits anything, and none of
+them decides anything.
+
+| Script | Says |
+|---|---|
+| `scripts/queue-lint.sh` | whether the prompt queue still obeys its own rules |
+| `scripts/state-drift.sh` | which role's `State.md` line is older than that role's newest session record, and when State is near its size budget |
+| `scripts/size-budget.py` | which per-session file has outgrown what every session pays to read it |
+| `scripts/setup-hooks.sh` | wires `.githooks/` — a commit subject carried to the dialog, and a warning when a commit spans more than one row |
+
+Run once per clone:
+
+```bash
+bash scripts/setup-hooks.sh
+```
 
 ## Scope discipline
 

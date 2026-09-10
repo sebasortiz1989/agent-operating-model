@@ -3,10 +3,21 @@
 One file per session:
 
 ```
-YYYY-MM-DD_NN_<role>_short-topic.md
+YYYY-MM-DD_HHMM_<role>_short-topic.md
 ```
 
-`NN` is a per-day sequence, so two sessions on one day sort correctly.
+**`HHMM` is the clock time you create the file** — `date +%Y-%m-%d_%H%M` — not a
+sequence number.
+
+**Why the clock and not a counter.** A counter requires knowing what else was
+written today. **Parallel sessions cannot see each other**: two of them on the
+same day both reach for `_02_`, and one silently overwrites the other, or two
+files claim the same position in a record whose whole value is that it is
+append-only. The clock cannot collide that way, and it sorts the same.
+
+**If you are changing an existing hub over, leave the old filenames alone.** The
+folder is append-only and other files cite it by name; the convention changes
+going forward.
 
 ## Why these exist
 

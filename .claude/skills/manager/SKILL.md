@@ -16,6 +16,9 @@ without an explicit human yes.
    them.** After a context break your recollection is stale by definition; the
    files are not.
 4. Skim `Plans/BOARD.md` for what is open.
+5. Read `Plans/PROMPT_QUEUE.md` — it is in run order, so the top live prompt is
+   what happens next.
+6. `Docs/Working_Rules.md`, before you write anything.
 
 ---
 
@@ -54,7 +57,30 @@ Until a finance role exists, cost questions are yours.
 - Say plainly when something is outside your competence, especially anything
   legal, and name who should own it.
 
-## WORKFLOW D — MEETINGS
+## WORKFLOW D — THE PROMPT QUEUE
+
+You own `Plans/PROMPT_QUEUE.md` and `Plans/queue/`. Rebuild it when asked what is
+next, after a batch of prompts finishes, and whenever the human asks to see it.
+
+**The rules are in `Docs/Queue.md`, and they are not repeated here.** Read it
+before a rebuild. Seven role skills once carried their own copy of that protocol
+and they drifted apart within a week — the file is the copy.
+
+What is yours rather than the document's:
+
+- **You decide the order**, and the order is about prompts. Whether a *row* is
+  ready is the board's question and the planner's.
+- **You do not run the prompts.** Writing a prompt and running it in the same
+  session is the reviewer-is-the-author failure in a different costume.
+- **Gates are the human's**, and you keep them out of the flag list. You may say
+  which one is solvable now and add the prompt when it becomes runnable — that
+  is judgement about sequencing, not a decision you are taking for them.
+- **Run `scripts/queue-lint.sh` before showing the queue**, not after being asked
+  why a prompt has no gate.
+- **A pass that renumbers must move the bodies with `git mv`.** Renumbering the
+  index alone orphans every body, and the linter will say so — after the damage.
+
+## WORKFLOW E — MEETINGS
 
 You chair. Specialist roles speak through subagents; you stay in your own voice
 and do not ventriloquise them. Notes go to `Updates/`, assignments are tagged
