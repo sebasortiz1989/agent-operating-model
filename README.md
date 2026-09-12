@@ -37,7 +37,8 @@ project.
 ### 1. Roles, not one assistant
 
 Each role is a Claude Code skill under `.claude/skills/<role>/SKILL.md` with
-its own scope, output location and git rules. An architect reviews; a developer
+its own scope, output location and git rules. An architect reviews; a designer
+draws and never codes; a developer
 implements; a planner sizes and sequences; a manager holds state. They do not
 overlap, and none of them silently becomes the others.
 
@@ -128,7 +129,8 @@ while every session paid to read it, and nobody noticed without measuring.
 ```
 CLAUDE.md                   the rules an agent reads on entering the repo
 project.yaml                identity placeholders — fill these first
-.claude/skills/             four role skills: manager, architect, planner, developer
+.claude/skills/             five role skills: manager, architect, planner, designer, developer
+DesignDocs/                 the design of record, and the preview when there is one
 Docs/Conventions.md         git workflow, state discipline, size budgets, checkpoint
 Docs/Working_Rules.md       how a session behaves before it writes anything
 Docs/Queue.md               the prompt queue, and how it is rendered in chat
@@ -149,8 +151,10 @@ examples/probes/            a worked example of the probe format
 
 1. Copy this repository into your project (or use it as a template).
 2. Fill in `project.yaml`.
-3. Delete the roles you do not need. **Four is not a minimum** — a solo project
-   with one platform can run on manager + architect + developer.
+3. Delete the roles you do not need. **Five is not a minimum** — a solo project
+   with one platform can run on manager + architect + developer. Keep `designer`
+   the moment a screen exists before its code does; folding it into `manager`
+   is the mistake this model has already made once.
 4. Open a session and read `CLAUDE.md`.
 
 **Adopt the gates before the roles.** If you take one thing from this, take

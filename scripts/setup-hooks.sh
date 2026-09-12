@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# hub-scripts generation 2026-09-12 — a project that copies this file keeps this line,
+# so a later diff can say which generation it runs rather than counting lines.
 # Points this clone's git hooks at the tracked `.githooks/` directory.
 #
 # Run once per clone, from either repo — this file is byte-identical in

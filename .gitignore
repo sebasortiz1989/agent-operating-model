@@ -2,3 +2,9 @@
 *.swp
 .env
 .env.*
+
+# Editor state — local, never part of the model
+.obsidian/
+.idea/
+.vscode/
+.tmp_*/

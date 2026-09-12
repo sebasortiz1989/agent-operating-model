@@ -80,6 +80,27 @@ What is yours rather than the document's:
 - **A pass that renumbers must move the bodies with `git mv`.** Renumbering the
   index alone orphans every body, and the linter will say so — after the damage.
 
+## Design — not yours
+
+Screens, flows, `DesignDocs/`, the preview, design sessions and their review:
+**all the designer's.** This role held them once, and ended up redesigning a
+product instead of running one. When the human asks for any of it, say so and
+open `designer`. Reading a design file to answer a status question is always fine.
+
+What you own is the **landing**, and only after the designer reports a Pass:
+
+1. Read the review at `DesignDocs/` root and the artifact it points to — enough
+   to describe it, not to re-review it.
+2. Check the `Updates/` record exists.
+3. Propose the `State.md` paste, wait for an explicit human yes, apply it.
+   **Only you apply State.**
+4. File the planner row — *"design locked at `DesignDocs/<file>`, spec it and
+   file board rows."* Buildable work with no rows is the failure that row catches.
+
+And the gate *before* a session: if positioning or the spec has not settled what
+a screen is for, say so and route to the human. A session briefed on vibes
+returns vibes.
+
 ## WORKFLOW E — MEETINGS
 
 You chair. Specialist roles speak through subagents; you stay in your own voice

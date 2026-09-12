@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# hub-scripts generation 2026-09-12 — a project that copies this file keeps this line,
+# so a later diff can say which generation it runs rather than counting lines.
 # Report where State.md has fallen behind the hub. DETECTION ONLY.
 #
 # WHY THIS EXISTS. Everything else in a hub tends to get guarded — the board is
@@ -48,7 +50,9 @@ skills = sorted(p.name for p in (root / ".claude" / "skills").iterdir()
 ROLES = [(s, [s.replace("-", " ").title(), s]) for s in skills]
 
 def section(heading):
-    m = re.search(rf"^### {re.escape(heading)}\s*$", state, re.M)
+    # PREFIX match: `growth` finds `### Growth · Web Developer`, `architect`
+    # finds `### Architect Developer`. An exact match silently skips both.
+    m = re.search(rf"^### {re.escape(heading)}(\s|·|$)", state, re.M)
     if not m:
         return None
     nxt = re.search(r"^(###|##) ", state[m.end():], re.M)
@@ -85,7 +89,7 @@ if stale:
     lines.append("ROLES WHOSE STATE LINE IS OLDER THAN THEIR NEWEST UPDATE:")
     for label, sdate, newest, since in sorted(stale, key=lambda r: r[1]):
         lines.append(f"  {label:<20} State: {sdate:<10}  newest entry: {newest}  ({since} since)")
-elif not any(section(h) for _, hs in ROLES for h in hs):
+elif not any(section(h) is not None for _, hs in ROLES for h in hs):
     # No `### <Role>` section resolved. That is a legitimate shape — a hub whose
     # State is organised by project, or one with a single agent — but it means
     # the staleness check has nothing to match. Say so rather than pass silently.
@@ -143,7 +147,7 @@ if orphan:
 
 # Does the staleness check apply at all? If no `### <Role>` section resolves,
 # it matched nothing — and "nothing stale" would be a lie of omission.
-applies = any(section(h) for _, hs in ROLES for h in hs)
+applies = any(section(h) is not None for _, hs in ROLES for h in hs)
 
 quiet = not stale and total <= BUDGET * 0.8 and not orphan
 if quiet:

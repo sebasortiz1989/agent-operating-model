@@ -31,4 +31,5 @@ _(anything blocking another role — tag who must answer)_
 ### Manager
 ### Architect
 ### Planner
+### Designer
 ### Developer

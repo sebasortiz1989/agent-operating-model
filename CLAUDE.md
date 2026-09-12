@@ -28,9 +28,12 @@ each, no mirrors.** A mirrored skill file is a file that will drift.
 | `manager` | State, cross-role status, session records, budget |
 | `architect` | Cross-cutting decisions, ADRs, review gate, testing standards |
 | `planner` | Turning decisions into sized, sequenced board rows |
+| `designer` | Screens, flows, `DesignDocs/`, design sessions and their review, the preview. **Writes no product code** |
 | `developer` | Implementation on one platform |
 
-Add or delete roles to fit the project. Four is an example, not a floor.
+Add or delete roles to fit the project. Five is an example, not a floor — and
+`designer` is the one most often dropped first, then reinstated once the manager
+has redesigned a whole product by accident.
 
 ## After meaningful work
 

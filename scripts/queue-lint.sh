@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# hub-scripts generation 2026-09-12 — a project that copies this file keeps this line,
+# so a later diff can say which generation it runs rather than counting lines.
 # Check the prompt queue's INVARIANTS — the shape rules, not the content.
 #
 # WHY THIS EXISTS. Every check below is a failure that actually happened, four of
