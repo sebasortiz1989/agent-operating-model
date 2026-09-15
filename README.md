@@ -32,7 +32,7 @@ project.
 
 ---
 
-## The four mechanisms
+## The six mechanisms
 
 ### 1. Roles, not one assistant
 
@@ -137,6 +137,8 @@ Docs/Queue.md               the prompt queue, and how it is rendered in chat
 Docs/Board.md               how work is tracked, row naming, sizing
 Docs/Probes.md              the probe convention in full
 Docs/ADRs.md                when an ADR is warranted, and the template
+Docs/Agent_Or_Not.md        agent, script, human or a written note — choosing before you build
+Docs/Memory.md              the three kinds of memory, what crosses a boundary and what never does
 State.md                    template
 Updates/                    format and an example
 Plans/BOARD.md              board template
@@ -164,6 +166,19 @@ carry most of the value; the role structure is scaffolding around them.
 **After the gates, take the working rules and the size budgets** — both are
 cheap, neither needs the role structure, and they are what keep a hub readable
 long enough for the rest to matter.
+
+**Two decisions come before any of it, and both are cheaper to get right than to
+correct:**
+
+- **`Docs/Agent_Or_Not.md`** — whether the thing you are about to build should be
+  an agent at all, or a script, a human decision, or a written note. Three of the
+  four are cheaper than an agent, and **an agent cannot be a gate**: the moment a
+  model decides whether a threshold was crossed, the threshold has stopped
+  existing.
+- **`Docs/Memory.md`** — the three kinds of memory and the two questions that
+  scope them: *who pays to read it*, and *who is harmed if it leaves*. Current
+  truth is budgeted because every session pays for it; the record is append-only
+  because an edited history is not history.
 
 ## What this is not
 
